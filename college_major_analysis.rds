@@ -1,0 +1,32 @@
+# download and load the data.frame
+install.packages("devtools")
+devtools::install_github("jhudsl/collegeIncome")
+library(collegeIncome)
+data(college)
+
+
+devtools::install_github("jhudsl/matahari")
+library(matahari)
+
+# documentation of the analysis
+dance_start(value = FALSE, contents = FALSE)
+
+str(college)
+college$major <- factor(college$major,levels = college$major[order(college$rank)])
+college$major_category <- factor(college$major_category,levels = college$major_category[order(college$rank)])
+
+library(ggplot2)
+plot <- ggplot(data=college,aes(x=major, y=median,color=major_category,group=major_category))+
+  geom_point()+
+  geom_line()
+
+plot
+
+fit <- lm(median~major_category-1,college)
+summary(fit)
+
+plot(fit)
+
+influence(lm(median~major_category,college))$hat
+
+dance_save("~/Desktop/college_major_analysis.rds")
